@@ -1,0 +1,223 @@
+Please follow the instructions carefully and let me know if you have any difficulty.
+
+ 
+
+1) Enter your VMware virtual machine.
+
+ 
+
+2) Navigate to the folder that hosts your OS project folder.
+
+ 
+
+3) Create an include folder so we have somewhere to  put our header files. In the root of your project folder, run the following command
+
+mkdir include
+
+ 
+
+4) Now, let's go inside that folder
+
+cd include
+
+and open a text file called console.h in our editor
+
+vim console.h
+
+ 
+
+5) Inside console.h we want to add the function headers for some of the behavior we will need to reference, as well as some constants that will help us in calculations. First we need to add our header guards. Add the following to your console.h file
+
+#ifndef MYOS_INCLUDE_CONSOLE_H
+
+#define MYOS_INCLUDE_CONSOLE_H
+
+// Future code will go here
+
+#endif
+
+ 
+
+6) Next we will add the following constants. These will be quick references for us if we need them in calculations
+
+extern const int VGA_WIDTH;
+
+extern const int VGA_HEIGHT;
+
+extern const int VGA_BYTES_PER_CHARACTER;
+
+ 
+
+7) Finally, let's add the headers for the functions we want to implement:
+
+void clear_terminal();
+
+void print_character(char c);
+
+void print_string(char* str);
+
+void print_line(char* str);
+
+ 
+
+8) Next let's create a folder in the root of our project folder and call it console.  This folder will contain the C files we need to implement the functions declared in the header
+
+mkdir console
+
+cd console
+
+ 
+
+9) Open up a file called console.c in your text editor. The first thing we need is to include our header file so we will use
+
+#include "console.h"
+
+ 
+
+10) Create the values for the global ints that you declared extern in console.c. Use:
+
+const int VGA_WIDTH = 80;
+
+const int VGA_HEIGHT = 25;
+
+const int VGA_BYTES_PER_CHARACTER = 2;
+
+ 
+
+You can then use these in your for loop calculations instead of hard coding the values. If you want to use more, like you want to calculate the entire buffer, feel free to add more in the same style!
+
+ 
+
+11) Inside console.c you want to implement the four functions from the header file. clear_terminal is already implemented from your main and can just be moved. print_line, print_string and print_character can be implemented as follows:
+
+print_line - Calls print_string followed by a print_character using the new line character '\n'
+
+print_string - Can be implemented by calling print_character for each character in the string (this will essentially be like what you saw in the main in the sample code except instead of placing the data into memory directly you will call print_character for each character.)
+
+print_character - For this one you will want to keep a variable inside console.c that tells you what your current index is. This can be done with a global static integer defaulted to 0. Name it appropriately so it tells you what it does, something like static int terminal_position. This way you can find the appropriate spot in VGA_MEMORY by using terminal_position as the index. Place the character at that index and write the appropriate color (for now use 0x07). Then increment the position so it is set for the next print. Do not worry about overflowing the video window. We will worry about that later.
+
+For example: To place a character in the buffer I would use VGA_BUFFER[terminal_position] = c where c is the given parameter of the function.
+
+There should be a special test inside print_character to see if the character is equivalent to a '\n'.  If it is a '\n' you do not want to put the '\n' directly into the buffer, instead you want to manipulate terminal_position so that it can put you at the appropriate spot in the buffer. Phrased another way - when you encounter '\n' change terminal_position to the next multiple of 160.
+
+ 
+
+12) Change your main function in kernel.c to test your new functions.  Try
+
+ 
+
+clear_terminal();
+
+print_string("HELLO");
+
+print_line("WORLD");
+
+print_string("TODAY");
+
+ 
+
+And see if the output matches your expectations.
+
+ 
+
+13) Finally, let's adjust our Makefile so our new files compile.
+
+ 
+
+First we will add two sets at the top signifying our C and O files
+
+C_FILES=./kernel.c ./console/console.c
+
+O_FILES=${C_FILES:.c=.o}
+
+ 
+
+Next look for the rule for kernel.bin.  The dependencies of kernel.bin are kernel-entry.o and kernel.o.  kernel-entry.o won't change, but kernel.o needs to become ALL the O files we are going to need to link, so change kernel.o to ${O_FILES}
+
+After that, since we are going to be compiling multiple C files, we will change the kernel.o target to instead simply read
+
+${O_FILES}:
+
+ 
+
+The gcc command will then need to change so we can compile ALL our C files, and also our header files. So change it to
+
+     gcc -Iinclude -fno-pie -m32 -ffreestanding -c ${@:.o=.c} -o $@
+
+ 
+
+NOTE* The -Iinclude above has a capital i as the first character, NOT a lowercase L.
+
+ 
+
+And lastly we will create an additional clean dependency line to find all the files we created and compiled and remove them.  We can use
+
+ 
+
+find . -name \*.o | xargs --no-run-if-empty rm
+
+ 
+
+14) Next you will run the command in the root of your project folder
+
+ 
+
+make clean
+
+ 
+
+Which will destroy all old copies of files we don't need.  You can then run
+
+ 
+
+make
+
+ 
+
+Which will build your project and launch it in the emulator.  At this point any compilation errors or warnings should be addressed. If you can't figure them out email me and we can discuss. Make sure to include all relevant code and errors in your email communication.
+
+ 
+
+When you compile, you will be left with an os.bin file.  After your first make your code might be right, but the output might be incorrect. This may be due to not loading enough content from the disk. To fix you can run
+
+ 
+
+ls -l
+
+ 
+
+And find os.bin.  os.bin will give you a number of bytes for the file size. Take that number, subtract 512 from it and then divide that total by 512.  So for example my os.bin was 12804 bytes. I subtract 512 to get 12292. I then divide that by 512 to get 25 (you round up).  This tells me I need to load 25 sectors from my disk to load my kernel.  The value of sectors you need to load from your disk is in your boot.asm file at the end at the line
+
+ 
+
+NUM_SECTORS db 0x09
+
+ 
+
+Change that 0x09 to the hex value of the number of sectors you needed.  For example, I needed 25, which is 
+
+0x19
+
+ 
+
+So my line said
+
+ 
+
+NUM_SECTORS db 0x19
+
+ 
+
+I then run make clean and make again and it should show me the output I want.
+
+ 
+
+Go slow with this. If there are any parts you don't understand you should reach out to me immediately.
+
+ 
+
+When you are finished either upload a .zip or .rar or .tar.gz of your entire project folder OR put your repository on git and tell me the address so I can clone it.  Either is fine.
+
+ 
+
+Your submission should have NO compiler warnings and NO errors. A submission with compiler warnings or errors will get a 0. Handle all errors! If you have trouble with an error, reach out to me.
