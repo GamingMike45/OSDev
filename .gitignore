@@ -1,0 +1,4 @@
+*.o
+console/*.o
+boot.bin
+console/console.o

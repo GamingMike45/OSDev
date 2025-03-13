@@ -2,17 +2,17 @@
 #include <stdint.h>  // For standard integer types
 
 #define VIDEO_MEMORY (char*)0xB8000  // VGA text mode memory
-#define SCREEN_WIDTH 80  // Number of columns in VGA mode
 
-uint16_t cursor_position = 0;
+const int VGA_WIDTH = 80;
+const int VGA_HEIGHT = 25;
+const int VGA_BYTES_PER_CHARACTER = 2;
+
+static int cursor_position = 0;
 
 void clear_terminal() {
-	uint16_t* video_memory = (uint16_t*)0xB8000;
-	uint16_t Blank = 0x0700;
-
-
-	for (int i = 0; i < 2000; i++) {
-		video_memory[i] = Blank;
+	for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
+		VGA_BUFFER[i*2] = 0x00;
+        VGA_BUFFER[(i*2)+1] = 0x00;
 	}
 }
 
@@ -20,7 +20,7 @@ void print_character(char c) {
     char *video_memory = VIDEO_MEMORY;
     
     if (c == '\n') {  
-        cursor_position += SCREEN_WIDTH - (cursor_position % SCREEN_WIDTH);
+        cursor_position += VGA_WIDTH - (cursor_position % VGA_WIDTH);
     } else {
         video_memory[cursor_position * 2] = c;
         video_memory[cursor_position * 2 + 1] = 0x07; // Light gray on black

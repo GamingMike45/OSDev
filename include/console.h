@@ -3,6 +3,7 @@
 // Futer Code will Go here
 #endif
 
+extern char* const VGA_BUFFER;
 extern const int VGA_WIDTH;
 extern const int VGA_HEIGHT;
 extern const int VGA_BYTES_PER_CHARACTER;
