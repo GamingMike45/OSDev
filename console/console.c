@@ -12,7 +12,6 @@ static int cursor_position = 0;
 void clear_terminal() {
 	for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
 		VGA_BUFFER[i*2] = 0x00;
-        VGA_BUFFER[(i*2)+1] = 0x00;
 	}
 }
 
