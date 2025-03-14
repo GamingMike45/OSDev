@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "console.h"
-char* const VGA_BUFFER = (char*) 0x0B8000;
 
 void main() {
 

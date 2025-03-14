@@ -6,6 +6,7 @@
 const int VGA_WIDTH = 80;
 const int VGA_HEIGHT = 25;
 const int VGA_BYTES_PER_CHARACTER = 2;
+char* const VGA_BUFFER = (char*) 0x0B8000;
 
 static int cursor_position = 0;
 
