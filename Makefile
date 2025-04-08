@@ -25,4 +25,4 @@ console/console.o: console/console.c
 	gcc -Iinclude -fno-pie -m32 -ffreestanding -c $< -o $@
 
 clean:
-	$(RM) *.o *.bin console/*.o
+	$(RM) *.o *.bin */*.o
