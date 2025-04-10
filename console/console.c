@@ -1,7 +1,7 @@
 #include "console.h"  // Ensure the correct include path
 #include <stdint.h>  // For standard integer types
 
-#define VIDEO_MEMORY (char*)0xB8000  // VGA text mode memory
+
 
 const int VGA_WIDTH = 80;
 const int VGA_HEIGHT = 25;
@@ -12,18 +12,20 @@ static int cursor_position = 0;
 
 void clear_terminal() {
 	for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
-		VGA_BUFFER[i*2] = 0x0;
+		VGA_BUFFER[i * VGA_BYTES_PER_CHARACTER] = 0x0;
+        VGA_BUFFER[i * VGA_BYTES_PER_CHARACTER + 1] = 0x07; // Light gray on black
+
 	}
 }
 
 void print_character(char c) {
-    char *video_memory = VIDEO_MEMORY;
+    // char *video_memory = VIDEO_MEMORY;
     
     if (c == '\n') {  
         cursor_position += VGA_WIDTH - (cursor_position % VGA_WIDTH);
     } else {
-        video_memory[cursor_position * 2] = c;
-        video_memory[cursor_position * 2 + 1] = 0x07; // Light gray on black
+        VGA_BUFFER[cursor_position * VGA_BYTES_PER_CHARACTER] = c;
+        VGA_BUFFER[cursor_position * VGA_BYTES_PER_CHARACTER + 1] = 0x07; // Light gray on black
         cursor_position++;
     }
 }

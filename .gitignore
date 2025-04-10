@@ -4,3 +4,4 @@ boot.bin
 console/console.o
 os.bin
 kernel.bin
+.vscode/*
