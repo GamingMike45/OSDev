@@ -8,6 +8,5 @@ void main() {
 	print_line(" WORLD");
 	print_string("TODAY");
 
-
 	return;
 }

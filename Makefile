@@ -25,4 +25,7 @@ console/console.o: console/console.c
 	gcc -Iinclude -fno-pie -m32 -ffreestanding -c $< -o $@
 
 clean:
-	$(RM) *.o *.bin */*.o
+	$(RM) *.o *.bin ${O_FILES}
+
+make reset: 
+	make clean && make 

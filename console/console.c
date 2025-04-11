@@ -1,8 +1,6 @@
 #include "console.h"  // Ensure the correct include path
 #include <stdint.h>  // For standard integer types
 
-
-
 const int VGA_WIDTH = 80;
 const int VGA_HEIGHT = 25;
 const int VGA_BYTES_PER_CHARACTER = 2;
@@ -14,14 +12,12 @@ void clear_terminal() {
 	for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
 		VGA_BUFFER[i * VGA_BYTES_PER_CHARACTER] = 0x0;
         VGA_BUFFER[i * VGA_BYTES_PER_CHARACTER + 1] = 0x07; // Light gray on black
-
+        cursor_position = 0;
 	}
 }
 
-void print_character(char c) {
-    // char *video_memory = VIDEO_MEMORY;
-    
-    if (c == '\n') {  
+void print_character(char c) {    
+    if (c == '\n') {
         cursor_position += VGA_WIDTH - (cursor_position % VGA_WIDTH);
     } else {
         VGA_BUFFER[cursor_position * VGA_BYTES_PER_CHARACTER] = c;
