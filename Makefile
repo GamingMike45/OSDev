@@ -1,7 +1,7 @@
-all: qemu_launch
-
 C_FILES=./kernel.c ./console/console.c
 O_FILES=${C_FILES:.c=.o}
+
+all: qemu_launch
 
 qemu_launch: os.bin
 	qemu-system-i386 -drive format=raw,file=$<,index=0,if=floppy
@@ -18,11 +18,8 @@ kernel.bin: kernel-entry.o ${O_FILES}
 kernel-entry.o: kernel-entry.elf
 	nasm $< -f elf -o $@
 
-kernel.o: kernel.c
+${O_FILES}: ${C_FILES}
 	gcc -Iinclude -fno-pie -m32 -ffreestanding -c ${@:.o=.c} -o $@
-
-console/console.o: console/console.c
-	gcc -Iinclude -fno-pie -m32 -ffreestanding -c $< -o $@
 
 clean:
 	$(RM) *.o *.bin ${O_FILES}
