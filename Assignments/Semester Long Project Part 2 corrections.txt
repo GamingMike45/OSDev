@@ -1,0 +1,13 @@
+You should put the variable definitions and sets above the recipes in the Makefile.
+
+You do not need the console recipe in your Makefile, just change the kernel.o target to ${O_FILES} and it will work.
+
+You have the // Futer code will go here comment but then you did not put the future code there, you put it at the bottom, which defeats the point of the header guard.
+
+You also have a big long #define that repeats the MY_OS_INCLUDE_CONSOLE_H.
+
+Why is there VIDEO_MEMORY and VGA_BUFFER? Just use the VGA_BUFFER.
+
+You do not reset the style byte in your clear_terminal. You also hard coded the dimension (i*2) instead of using the consts.
+
+You do not reset the terminal_position to 0 at the end of clear_terminal and thus subsequent prints after a clear will appear in seemingly random places.

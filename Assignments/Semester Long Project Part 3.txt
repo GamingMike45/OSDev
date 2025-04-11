@@ -1,0 +1,203 @@
+For this project you will continue in your myos folder.
+
+In this part of the project we want to add color behavior to our Operating System.  This behavior will be related to working with the VGA area of memory to reflect color text on the screen.
+
+ 
+
+1) Add an enumerated type that will assist us in VGA_Color control. We add the following to console.h:
+
+typedef enum {
+
+BLACK=0,
+
+BLUE,
+
+GREEN,
+
+CYAN,
+
+RED,
+
+MAGENTA,
+
+BROWN,
+
+LIGHT_GRAY,
+
+DARK_GRAY,
+
+LIGHT_BLUE,
+
+LIGHT_GREEN,
+
+LIGHT_CYAN,
+
+LIGHT_RED,
+
+LIGHT_MAGENTA,
+
+YELLOW,
+
+WHITE
+
+} VGA_Color;
+
+2) Let's add the headers for the functions we want to implement in console.h:
+
+void print_character_with_color(char c, VGA_Color bg_color, VGA_Color font_color);
+
+void print_string_with_color(char* str, VGA_Color bg_color, VGA_Color font_color);
+
+void print_line_with_color(char* str, VGA_Color bg_color, VGA_Color font_color);
+
+void set_terminal_font_color(VGA_Color col);
+
+void set_terminal_background_color(VGA_Color col);
+
+ 
+
+3) Next are some globals in console.c that we will use to assist us in what we're trying to do.  These globals will be
+
+ 
+
+static VGA_Color terminal_font_color = LIGHT_GRAY; // Default font color will be light gray
+
+static VGA_Color terminal_background_color = BLACK; // Default background color is black
+
+ 
+
+4) Next we will implement the functions that we had headers for in our include. To start, create method stubs and then we will implement one by one.
+
+void set_terminal_font_color(VGA_Color col) {
+
+     terminal_font_color = col;
+
+}
+
+ 
+
+void set_terminal_background_color(VGA_Color col) {
+
+     terminal_background_color = col;
+
+}
+
+ 
+
+5) Next we will alter the print functions without color.  The idea of the print functions without color is to just call the color versions with the defaults.  So the print_character function becomes
+
+void print_character(char c) {
+
+     print_character_with_color(c, terminal_background_color, terminal_font_color);
+
+}
+
+ 
+
+I will leave the other two for you.
+
+ 
+
+6) Now we want to implement the print functions with color.  Let's start with the easiest function, which is the print_line function.  This print line function should call the print_string function to put the string onto the screen, and then it should call the print_character function with a newline character. We will have to implement the newline character functionality ourselves, but for now we will kick that can up the road a bit.
+
+void print_line_with_color(char* str, VGA_Color bg_color, VGA_Color font_color) {
+
+      print_string_with_color(str, bg_color, font_color);
+
+      print_character_with_color('\n', bg_color, font_color);
+
+}
+
+ 
+
+7) Next we want to implement the print_string_with_color function.  To implement this function we want to traverse the string we are given as input and, for every character, call print_character_with_color on that character.  We can decide when to stop looping when we run into a '\0' special character because C strings are terminated by this special character.
+
+ 
+
+void print_string_with_color(char* str, VGA_Color bg_color, VGA_Color font_color) {
+
+     for (int i=0; str[i] != '\0'; i++) {
+
+            print_character_with_color(str[i], bg_color, font_color);
+
+     }
+
+}
+
+ 
+
+8) Finally we will implement the print_character_with_color function.
+
+ 
+
+void print_character_with_color(char c, VGA_Color bg_color, VGA_Color font_color) {
+
+ 
+
+print_character will depend how you implemented it. However, you should load the style byte like so:  (bg_color << 4) | font_color;
+
+ 
+
+9) Let's head on over to our kernel.c file.  First we will #include "console.h" to our kernel.  We will then run some functions to see if everything worked. Let's check it out
+
+void main() {
+
+     clear_terminal();
+
+     print_string_with_color("hello", YELLOW, CYAN);
+
+     print_line_with_color("World", MAGENTA, GREEN);
+
+     print_string("Today");
+
+     return;
+
+}
+
+ 
+
+10) When you compile, you will be left with an os.bin file.  After your first make your code might be right, but the output might be incorrect. This may be due to not loading enough content from the disk. To fix you can run
+
+ 
+
+ls -l
+
+ 
+
+And find os.bin.  os.bin will give you a number of bytes for the file size. Take that number, subtract 512 from it and then divide that total by 512.  So for example my os.bin was 12804 bytes. I subtract 512 to get 12292. I then divide that by 512 to get 25 (you round up).  This tells me I need to load 25 sectors from my disk to load my kernel.  The value of sectors you need to load from your disk is in your boot.asm file at the end at the line
+
+ 
+
+NUM_SECTORS db 0x09
+
+ 
+
+Change that 0x09 to the hex value of the number of sectors you needed.  For example, I needed 25, which is 
+
+0x19
+
+ 
+
+So my line said
+
+ 
+
+NUM_SECTORS db 0x19
+
+ 
+
+I then run make clean and make again and it should show me the output I want.
+
+ 
+
+ 
+
+Go slow with this. If there are any parts you don't understand you should reach out to me immediately.  Don't wait until the last minute!
+
+ 
+
+When you are finished either upload a .zip or .rar or .tar.gz of your entire project folder OR put your repository on git and tell me the address so I can clone it.  Either is fine.
+
+ 
+
+Your submission should have NO compiler warnings and NO errors. A submission with compiler warnings or errors will get a 0. Handle all errors! If you have trouble with an error, reach out to me.

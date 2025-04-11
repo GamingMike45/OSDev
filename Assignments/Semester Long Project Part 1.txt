@@ -1,0 +1,55 @@
+Watch the 2/14 supplementary lecture and read the OSEnvironmentInstall.docx instructions. Get your development environment up and running.
+
+ 
+
+Please follow the instructions carefully and let me know if you have any difficulty.
+
+ 
+
+1) Enter your virtual machine.
+
+ 
+
+2) Open a command line and create a folder to work in. I call mine myos so I do - mkdir myos
+
+ 
+
+3) You will need to download the test OS files. Run the command
+
+wget elvis.rowan.edu/~mckeep82/os/myos.zip
+
+unzip myos.zip
+
+This should generate the source code files for the test os.
+
+ 
+
+4) To generate an os binary, run the command make clean followed by the command make
+
+ 
+
+5) This should launch a qemu window with your kernel up and running.
+
+ 
+
+6) Next, we want to try to clear the screen. Generate a function called "clear_terminal()" inside your kernel.c file and call it inside your main function. To do this you will need a function header before the main declaration. To clear a screen you must write a null character to every visual byte and a 0x07 to every style byte. You can do this with a single for loop as discussed in class.
+
+ 
+
+7) Adjust your main so that you call clear_terminal() first and then your Hello World code. That should print Hello World to an empty screen.
+
+ 
+
+8) As discussed in class you want to make sure you load the proper number of sectors. Check the num_sectors variable in boot.asm and make sure it matches the size of your kernel. If not, adjust accordingly using the equation - Ceiling ((size of os.bin - 512) / 512)
+
+ 
+
+9) NOTE - It is OK if the cursor is not in the correct position. That is handled by a separate piece of hardware that we will discuss in Chapter 5.
+
+ 
+
+10) Once your output looks correct, zip up the contents of your folder using 
+
+zip -r myos.zip .
+
+In your myos folder. Send me the myos.zip file as your submission.
