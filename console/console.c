@@ -1,5 +1,7 @@
 #include "console.h"  // Ensure the correct include path
 #include <stdint.h>  // For standard integer types
+#include "portmap.h"
+
 
 const int VGA_WIDTH = 80;
 const int VGA_HEIGHT = 25;
