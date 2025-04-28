@@ -1,0 +1,157 @@
+In this part of the project we want to start working with Input now that our Output is working.
+
+ 
+
+The first things that we're going to need are our header files. NOTE - header files should carry appropriate header guards like we did in Part 3.  Create two new header files - portmap.h and keyboard.h.  You may place those inside your include folder.
+
+ 
+
+keyboard.h is going to contain one function whose header is defined as
+
+uint8_t scan(void);
+
+And a charmap for character translation. You can download the charmap from here using wget
+
+ 
+
+http://elvis.rowan.edu/~mckeep82/os/my_os/io.h
+
+ 
+
+Place the charmap inside keyboard.h. You can then remove io.h. It is not needed.
+
+ 
+
+NOTE - To use the uint8_t data type you should #include <stdint.h>. uint8_t just means unsigned char, but it's a little easier to type.
+
+ 
+
+portmap.h is going to include two function headers
+
+uint8_t inb(uint16_t port);
+
+void outb(uint16_t port, uint8_t val);
+
+ 
+
+Next, we want to implement those functions. Create a folder called device.  Create a folder called keyboard inside that folder.  Inside the keyboard folder create a file called keyboard.c.  Inside we will put the implementation of the scan function.
+
+uint8_t scan(void) {
+
+     uint8_t brk;
+
+     static uint8_t key = 0;
+
+     uint8_t scan = inb(0x60);
+
+     brk = scan & 0x80;
+
+     scan = scan & 0x7f;
+
+     if (brk) {
+
+          return key = 0;
+
+     } else if (scan != key) {
+
+          return key = scan;
+
+     } else {
+
+          return 0;
+
+     }
+
+}
+
+ 
+
+Next we will create a folder called portmap inside the device folder.  Inside we will create a file called portmap.c.  portmap.c will contain the implementations of the inb and outb functions.
+
+ 
+
+uint8_t inb(uint16_t port) {
+
+     uint8_t ret;
+
+     __asm__ __volatile__("inb %1, %0":"=a"(ret):"Nd"(port));
+
+     return ret;
+
+}
+
+ 
+
+void outb(uint16_t port, uint8_t val) {
+
+     __asm__ __volatile__("outb %0, %1": : "a" (val), "Nd" (port));
+
+}
+
+ 
+
+Next we will head to our console.c file where we will implement the function needed to move the cursor when we type.
+
+void update_cursor() {
+
+     uint16_t cursor_position = terminal_position >> 1;
+
+     outb(0x3D4, 0x0F);
+
+     outb(0x3D5, (uint8_t) (cursor_position));
+
+     outb(0x3D4, 0x0E);
+
+     outb(0x3D5, (uint8_t) (cursor_position >> 8));
+
+}
+
+Make sure to edit your Makefile with the new C files so the Makefile knows to compile those C files (place the location of the C files into the C_FILES directive.
+
+ 
+
+Now, add a call to update_cursor() at the end of your print_character_with_color function so it will move the cursor when you print a character (watch out for the special character part of the function! Update there too). You should also call update_cursor at the end of your clear_terminal function.
+
+ 
+
+Finally, let's set up our kernel so it can read input appropriate.  Remove all code from your kernel.c main function so that it looks like the following:
+
+clear_terminal();
+
+uint8_t byte;
+
+while(1) {
+
+     while ( byte = scan()) {
+
+          print_character(charmap[byte]);
+
+     }
+
+}
+
+ 
+
+Run make clean, then make and your little operating system should allow you to type.
+
+ 
+
+Things to look out for - Make sure you #include the appropriate headers when needed. Check for syntax errors. If you have trouble, please email me to discuss the issue and I can take a look. Also, check the size of your os.bin.  Make sure the size of your os.bin matches the number of sectors you are pulling from disk in boot.asm (there is a variable named NUM_SECTORS in hex at the end of boot.asm)
+
+ 
+
+You will be graded by the following:
+
+1) Did you add appropriate header guards?
+
+2) Does your project compile without warnings and errors?
+
+3) Does the input get recognized?
+
+4) Did you implement the code in an appropriate, professional fashion (nice tabbing, spaces, conventions, etc)
+
+5) Does the cursor update appropriately as the user types?
+
+ 
+
+Please let me know if there are any issues!

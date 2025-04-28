@@ -7,6 +7,7 @@ const int VGA_BYTES_PER_CHARACTER = 2;
 char* const VGA_BUFFER = (char*) 0x0B8000;
 
 static int cursor_position = 0;
+static int terminal_position = 0; 
 
 static VGA_Color terminal_font_color = LIGHT_GRAY; // Default font color will be light gray
 static VGA_Color terminal_background_color = BLACK; // Default background color is black
@@ -17,6 +18,7 @@ void clear_terminal() {
         VGA_BUFFER[i * VGA_BYTES_PER_CHARACTER + 1] = 0x07; // Light gray on black
         cursor_position = 0;
 	}
+    update_cursor();
 }
 
 void print_character(char c) {  
@@ -61,5 +63,14 @@ void print_character_with_color(char c, VGA_Color bg_color, VGA_Color font_color
         VGA_BUFFER[cursor_position * VGA_BYTES_PER_CHARACTER] = c;
         VGA_BUFFER[cursor_position * VGA_BYTES_PER_CHARACTER + 1] = (bg_color << 4) | (font_color);
         cursor_position++;
+        update_cursor();
     }
+}
+
+void update_cursor() {
+    uint16_t cursor_position = terminal_position >> 1;
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t) (cursor_position));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t) (cursor_position >> 8));
 }
